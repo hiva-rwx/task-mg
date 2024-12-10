@@ -6,6 +6,10 @@ import {
   FlatList,
   StatusBar,
   TouchableOpacity,
+  Pressable,
+  Keyboard,
+  Button,
+  Alert,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { HelloWave } from "@/components/HelloWave";
@@ -13,8 +17,13 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "expo-router";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import SliceModal from "@/components/SliceModal";
+import TextField from "@/components/TextField";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { getData, insertData } from "@/db";
 
 type ItemData = {
   id: string;
@@ -114,6 +123,19 @@ const Item = ({ item, onPress, backgroundColor, setChecked, textColor }: ItemPro
 export default function HomeScreen() {
   const [data, setData] = useState(DATA);
   const [selectedId, setSelectedId] = useState<string>();
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [inputTitle, setInputTitle] = useState("");
+  const [inputDesc, setInputDesc] = useState("");
+
+  useEffect(() => {
+
+    // console.log(getData())
+  }, [])
+  
+
+  const onModalClose = () => {
+    setIsModalVisible(false);
+  };
 
   const setChecked = useCallback(
     (id: string) => {
@@ -121,6 +143,15 @@ export default function HomeScreen() {
     },
     [data]
   );
+
+  const handleNewTask = async () => {
+    if (!inputTitle.length) {
+      return Alert.alert("Enter Task Title");
+    }
+    const a = await insertData(inputTitle, inputDesc);
+    console.log('result ====> ',a)
+
+  };
 
   const renderItem = ({ item }: { item: ItemData }) => {
     const backgroundColor = item.id === selectedId ? "#dcdce1" : "#ffffff";
@@ -137,78 +168,14 @@ export default function HomeScreen() {
     );
   };
   return (
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    //   headerImage={
-    //     <Image
-    //       source={require('@/assets/images/partial-react-logo.png')}
-    //       style={styles.reactLogo}
-    //     />
-    //   }>
-    //   <ThemedView style={styles.titleContainer}>
-    //     <ThemedText type="title">Welcome!</ThemedText>
-    //     <HelloWave />
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-    //     <ThemedText>
-    //       Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-    //       Press{' '}
-    //       <ThemedText type="defaultSemiBold">
-    //         {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-    //       </ThemedText>{' '}
-    //       to open developer tools.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-    //     <ThemedText>
-    //       Tap the Explore tab to learn more about what's included in this starter app.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       When you're ready, run{' '}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       When you're ready, run{' '}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       When you're ready, run{' '}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    //   <ThemedView style={styles.stepContainer}>
-    //     <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-    //     <ThemedText>
-    //       When you're ready, run{' '}
-    //       <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-    //       <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-    //       <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-    //     </ThemedText>
-    //   </ThemedView>
-    // </ParallaxScrollView>
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
+        <ThemedView style={styles.newTask}>
+          <ThemedText type="defaultSemiBold">New Task</ThemedText>
+          <Pressable style={{ padding: 4 }} onPress={() => setIsModalVisible(true)}>
+            <AntDesign name="plus" size={24} color="black" />
+          </Pressable>
+        </ThemedView>
         <FlatList
           data={data}
           renderItem={renderItem}
@@ -216,28 +183,22 @@ export default function HomeScreen() {
           extraData={selectedId}
         />
       </SafeAreaView>
+      <SliceModal title="New Task" isVisible={isModalVisible} onClose={onModalClose}>
+        <ThemedView style={{ padding: 26 }}>
+          <TextField inputValue={inputTitle} setInputValue={setInputTitle} placeholder="Title" />
+          <TextField
+            style={{ marginVertical: 8 }}
+            inputValue={inputDesc}
+            setInputValue={setInputDesc}
+            placeholder="Description"
+          />
+          <Button title="Add" onPress={handleNewTask} />
+        </ThemedView>
+      </SliceModal>
     </SafeAreaProvider>
   );
 }
 
-// const styles = StyleSheet.create({
-//   titleContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 8,
-//   },
-//   stepContainer: {
-//     gap: 8,
-//     marginBottom: 8,
-//   },
-//   reactLogo: {
-//     height: 178,
-//     width: 290,
-//     bottom: 0,
-//     left: 0,
-//     position: 'absolute',
-//   },
-// });
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -255,5 +216,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
+  },
+  newTask: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
 });
